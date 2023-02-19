@@ -14,20 +14,24 @@ fn main() {
     for stream in listener.incoming() {
         match stream {
             // Ok(mut stream) => {
-                // println!("accepted new connection");
                 // let mut buf = [0; 512];
                 // stream.read(&mut buf).unwrap();
                 // stream.write("+PONG\r\n".as_bytes()).unwrap();
             Ok(mut stream) => {
-                let pong:String  = String::from("+PONG\r\n");
-                let mut buf = [0; 512];
-                stream.read(&mut buf);
-                // print!("return {}",String::from(buf));
-                stream.write(pong.as_bytes()).expect("Failed to write to server");
+                loop {
+                    println!("\n accepted new connection");
+                    let pong:String  = String::from("+PONG\r\n");
+                    let mut buf = [0; 512];
+                    let _ = stream.read(&mut buf);
+                    print!("return {:?}",String::from_utf8(buf.to_vec()));
+                    stream.write(pong.as_bytes()).expect("Failed to write to server");
+                }
+
             }
             Err(e) => {
                 println!("error: {}", e);
             }
+            
         }
     }
 }
