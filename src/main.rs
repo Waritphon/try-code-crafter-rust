@@ -22,7 +22,7 @@ fn main() {
                 let pong:String  = String::from("PONG");
                 let mut buf = [0; 512];
                 stream.read(&mut buf);
-                print!("return {}",buf);
+                // print!("return {}",String::from(buf));
                 stream.write(pong.as_bytes()).expect("Failed to write to server");
             }
             Err(e) => {
