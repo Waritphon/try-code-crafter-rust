@@ -13,6 +13,7 @@ fn main() {
         match stream {
             Ok(_stream) => {
                 println!("accepted new connection");
+                stream.write("PING");
             }
             Err(e) => {
                 println!("error: {}", e);
