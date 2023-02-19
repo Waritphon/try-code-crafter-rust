@@ -20,7 +20,9 @@ fn main() {
                 // stream.write("+PONG\r\n".as_bytes()).unwrap();
             Ok(mut stream) => {
                 let pong:String  = String::from("PONG");
-                stream.read(&mut [0; 128]);
+                let mut buf = [0; 512];
+                stream.read(&mut buf);
+                print!("return {}",buf);
                 stream.write(pong.as_bytes()).expect("Failed to write to server");
             }
             Err(e) => {
