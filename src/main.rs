@@ -19,7 +19,7 @@ fn main() {
                 // stream.read(&mut buf).unwrap();
                 // stream.write("+PONG\r\n".as_bytes()).unwrap();
             Ok(mut stream) => {
-                let pong:String  = String::from("PONG");
+                let pong:String  = String::from("+PONG\r\n");
                 let mut buf = [0; 512];
                 stream.read(&mut buf);
                 // print!("return {}",String::from(buf));
