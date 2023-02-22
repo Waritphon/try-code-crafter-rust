@@ -22,7 +22,11 @@ fn main() {
                     println!("\n accepted new connection");
                     let pong:String  = String::from("+PONG\r\n");
                     let mut buf = [0; 512];
-                    let _ = stream.read(&mut buf);
+                    let bytes = stream.read(&mut buf).unwrap();
+                    if bytes == 0 {
+                        println!("Finish sending");
+                        break;
+                    }
                     print!("return {:?}",String::from_utf8(buf.to_vec()));
                     stream.write(pong.as_bytes()).expect("Failed to write to server");
                 }
