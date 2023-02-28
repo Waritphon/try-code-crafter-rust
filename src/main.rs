@@ -1,41 +1,43 @@
 // Uncomment this block to pass the first stage
-use std::net::TcpListener;
-use std::io::{Read,Write};
+use anyhow::Result;
+use bytes::BytesMut;
+use tokio::io::{AsyncReadExt, AsyncWriteExt};
+use tokio::net::{TcpListener, TcpStream};
 
 
-fn main() {
-    // You can use print statements as follows for debugging, they'll be visible when running tests.
-    println!("Logs from your program will appear here!");
+#[tokio::main]
+async fn main() -> Result<()> {
+    let mut listener = TcpListener::bind("127.0.0.1:6379").await?;
 
-    // Uncomment this block to pass the first stage
-    //
-    let listener = TcpListener::bind("127.0.0.1:6379").unwrap();
-    //
-    for stream in listener.incoming() {
-        match stream {
-            // Ok(mut stream) => {
-                // let mut buf = [0; 512];
-                // stream.read(&mut buf).unwrap();
-                // stream.write("+PONG\r\n".as_bytes()).unwrap();
-            Ok(mut stream) => {
-                loop {
-                    println!("\n accepted new connection");
-                    let pong:String  = String::from("+PONG\r\n");
-                    let mut buf = [0; 512];
-                    let bytes = stream.read(&mut buf).unwrap();
-                    if bytes == 0 {
-                        println!("Finish sending");
-                        break;
-                    }
-                    print!("return {:?}",String::from_utf8(buf.to_vec()));
-                    stream.write(pong.as_bytes()).expect("Failed to write to server");
-                }
-
+    loop {
+        let incoming = listener.accept().await;
+        match incoming {
+            Ok((mut stream, _)) => {
+                println!("accepted new connection");
+                tokio::spawn(async move {
+                    handle_connection(&mut stream).await.unwrap();
+                });
             }
             Err(e) => {
                 println!("error: {}", e);
             }
-            
         }
     }
+}
+
+async fn handle_connection(stream: &mut TcpStream) -> Result<()> {
+    let mut buf = [0; 512];
+
+    loop {
+        // Wait for the client to send us a message but ignore the content for now
+        let bytes_read = stream.read(&mut buf).await?;
+        if bytes_read == 0 {
+            println!("client closed the connection");
+            break;
+        }
+
+        stream.write("+PONG\r\n".as_bytes()).await?;
+    }
+
+    Ok(())
 }
